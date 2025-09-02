@@ -1,0 +1,221 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Tab Link Opener</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #6e8efb;
+            outline: none;
+        }
+        
+        button {
+            background: linear-gradient(to right, #6e8efb, #a777e3);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .disclaimer {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+            text-align: left;
+        }
+        
+        .success-message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .tabs-counter {
+            margin-top: 20px;
+            font-weight: 500;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multi-Tab Link Opener</h1>
+        
+        <p class="description">
+            Enter a URL and specify how many views you want. The tool will open the link in multiple tabs.
+        </p>
+        
+        <div class="input-group">
+            <label for="url-input">Website URL:</label>
+            <input type="url" id="url-input" placeholder="https://example.com" value="https://www.example.com">
+        </div>
+        
+        <div class="input-group">
+            <label for="views-input">Number of views:</label>
+            <input type="number" id="views-input" placeholder="Enter number of tabs" min="1" max="20" value="5">
+        </div>
+        
+        <button id="open-tabs">Open Tabs</button>
+        
+        <div class="tabs-counter" id="tabs-counter">
+            Tabs opened: <span id="count">0</span>
+        </div>
+        
+        <div class="success-message" id="success-message">
+            Tabs are being opened. Please allow pop-ups for this site if they are blocked.
+        </div>
+        
+        <div class="disclaimer">
+            <strong>Note:</strong> Most browsers block pop-ups by default. You may need to allow pop-ups for this site. 
+            Opening too many tabs at once may slow down your browser. We've limited the maximum number of tabs to 20.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlInput = document.getElementById('url-input');
+            const viewsInput = document.getElementById('views-input');
+            const openTabsButton = document.getElementById('open-tabs');
+            const successMessage = document.getElementById('success-message');
+            const countElement = document.getElementById('count');
+            
+            // Set maximum tabs limit
+            viewsInput.addEventListener('change', function() {
+                if (this.value > 20) {
+                    this.value = 20;
+                    alert('Maximum allowed tabs is 20 to prevent browser performance issues.');
+                }
+            });
+            
+            openTabsButton.addEventListener('click', function() {
+                const url = urlInput.value.trim();
+                let views = parseInt(viewsInput.value);
+                
+                // Validate inputs
+                if (!url) {
+                    alert('Please enter a valid URL');
+                    return;
+                }
+                
+                if (isNaN(views) || views < 1) {
+                    alert('Please enter a valid number of views');
+                    return;
+                }
+                
+                // Limit the number of tabs to 20
+                views = Math.min(views, 20);
+                
+                // Show success message
+                successMessage.style.display = 'block';
+                
+                // Reset counter
+                let tabsOpened = 0;
+                countElement.textContent = tabsOpened;
+                
+                // Function to open tabs with delay
+                function openTabWithDelay() {
+                    if (tabsOpened < views) {
+                        try {
+                            // Open in new tab
+                            window.open(url, '_blank');
+                            tabsOpened++;
+                            countElement.textContent = tabsOpened;
+                        } catch (e) {
+                            console.error('Error opening tab:', e);
+                        }
+                        
+                        // Schedule next tab opening with a small delay
+                        setTimeout(openTabWithDelay, 300);
+                    }
+                }
+                
+                // Start opening tabs
+                openTabWithDelay();
+            });
+        });
+    </script>
+</body>
+</html>
+```
+  
